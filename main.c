@@ -22,6 +22,9 @@
 #include <stdint.h>
 #include <errno.h>
 
+#define _In_
+#define _Out_
+
 #define STYLE_C_UINT8 0
 #define STYLE_C_UINT8_IDENT "--c-uint8"
 #define STYLE_C_UINT16 1
@@ -60,7 +63,7 @@ void do_print_head(struct argvconf* conf);
 void do_print_tail(struct argvconf* conf);
 
 
-void* request_shared_buffer(size_t size) {
+void* request_shared_buffer(_In_ size_t size) {
 	static void* buffer = NULL;
 	static int current_size = 0;
 	if (! buffer) {
@@ -74,7 +77,7 @@ void* request_shared_buffer(size_t size) {
 	return buffer;
 }
 
-void print_help(const char* argv0) {
+void print_help(_In_ const char* argv0) {
 	fprintf(stderr, "Usage: %s [-f file] [args]\n", argv0);
 	fputs("Options:\n", stderr);
 	fputs("  -f\t\tInput file (default: stdin)\n", stderr);
@@ -91,7 +94,7 @@ void print_help(const char* argv0) {
 	fputs("  --java-char\tUses Java style with char format.\n", stderr);
 }
 
-void resolv_argv(int argc, char* argv[], struct argvconf* conf) {
+void resolv_argv(_In_ int argc, _In_ char* argv[], _Out_ struct argvconf* conf) {
 	conf->length_of_line = 4;	// default as 4
 	conf->length_of_item = 1;
 
@@ -139,7 +142,7 @@ void resolv_argv(int argc, char* argv[], struct argvconf* conf) {
 	}
 }
 
-void do_work(struct argvconf* conf) {
+void do_work(_In_ struct argvconf* conf) {
 	uint8_t* shared_buf = (uint8_t *) malloc(4096);
 	FILE* input_handle;
 	if (conf->filepath) {
@@ -166,11 +169,11 @@ void do_work(struct argvconf* conf) {
 	}
 }
 
-void do_print_tail(struct argvconf* conf) {
+void do_print_tail(_In_ struct argvconf* conf) {
 	fputs("};\n", stdout);
 }
 
-void do_print_head(struct argvconf* conf) {
+void do_print_head(_In_ struct argvconf* conf) {
 	char* print_head = NULL;
 	switch (conf->style) {
 		case STYLE_C_UINT8:
@@ -207,7 +210,7 @@ void do_print_head(struct argvconf* conf) {
 	fputs(print_head, stdout);
 }
 
-static inline void get_value_safety(void* out, void* in, size_t copy_size, size_t variable_size) {
+static inline void get_value_safety(_Out_ void* out, _In_ void* in, _In_ size_t copy_size, _In_ size_t variable_size) {
 	// Read `copy_size` from in, then write them to out
 	// Then fill (variable_size - copy_size) count zero byte to least space of out
 	uint8_t* inu8 = (uint8_t *) in;
@@ -221,7 +224,7 @@ static inline void get_value_safety(void* out, void* in, size_t copy_size, size_
 	}
 }
 
-/*static inline*/ size_t do_array_print_onechar(char* writebuf, struct argvconf* conf, uint8_t* bufferin, size_t get_value_size) {
+/*static inline*/ size_t do_array_print_onechar(_Out_ char* writebuf, _In_ struct argvconf* conf, _In_ uint8_t* bufferin, _In_ size_t get_value_size) {
 	char wbuf[32];
 	char* prefix = "";
 	if (conf->style == STYLE_JAVA_BYTE) 
@@ -288,13 +291,13 @@ static inline void get_value_safety(void* out, void* in, size_t copy_size, size_
 	return linelen;
 }
 
-static inline size_t write_middle_symbol(char* string_in, struct argvconf* conf) {
+static inline size_t write_middle_symbol(_Out_ char* string_in, _In_ struct argvconf* conf) {
 	const uint16_t comma_and_space = ',' + (' ' << 8);
 	((uint16_t *) string_in)[0] = comma_and_space;
 	return 2;
 }
 
-void do_array_printing(size_t current_size, size_t thissize, struct argvconf* conf, uint8_t* buffer, int last_buffer) {
+void do_array_printing(_In_ size_t current_size, _In_ size_t thissize, _In_ struct argvconf* conf, _In_ uint8_t* buffer, _In_ int last_buffer) {
 	size_t string_buffer_size = conf->length_of_line * 25 + (conf->length_of_line - 1) * 2 + 1;
 	size_t line_read_step_size = conf->length_of_line * conf->length_of_item;
 	size_t last_size = thissize % line_read_step_size;
