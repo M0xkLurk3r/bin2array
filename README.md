@@ -23,4 +23,9 @@ We also supports MSVC. To compile bin2array with MSVC under Windows, type:
 call vcvars.bat
 ```
 
-The ```vccars.bat``` should refers to your MSVC toolchain environment settings
+The ```vccars.bat``` should refers to your MSVC toolchain environment settings.
+
+Then call NMAKE.EXE to kick up compilation:
+```
+nmake -f Makefile.win
+```
