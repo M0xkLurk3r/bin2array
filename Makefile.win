@@ -1,0 +1,10 @@
+all: bin2array.exe
+
+bin2array.obj:
+  CL.EXE main.c /c /Fobin2array.obj
+
+bin2array.exe: bin2array.obj
+  LINK.EXE /OUT:bin2array.exe bin2array.obj
+  
+clean:
+  del bin2array.exe bin2array.obj

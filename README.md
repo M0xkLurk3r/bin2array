@@ -16,3 +16,11 @@ Make sure a POSIX-compatible make(1) is present in your environment, then type:
 ```
 make
 ```
+
+We also supports MSVC. To compile bin2array with MSVC under Windows, type:
+
+```
+call vcvars.bat
+```
+
+The ```vccars.bat``` should refers to your MSVC toolchain environment settings
