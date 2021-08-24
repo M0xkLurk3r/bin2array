@@ -25,11 +25,14 @@ clean:
 
 test:	$(EXE)
 	set -e; \
+	size=`wc -c < $(EXE)`; \
+	[ $$((size%8)) = 0 ] && size=; \
 	for mode in uint8 uint16 uint32 uint64 int8 int16 int32 int64; do \
 		echo "Testing C $$mode mode" 1>&2; \
 		./$(EXE) --c-$$mode --file $(EXE) > test.$$mode.c; \
 		$(CC) --include stdint.h -c test.$$mode.c -o test.$$mode.o; \
 		$(OBJCOPY) --output-target binary test.$$mode.o; \
+		[ -n "$$size" ] && truncate -s $$size test.$$mode.o; \
 		cmp $(EXE) test.$$mode.o; \
 		rm -f test.$$mode.c test.$$mode.o; \
 	done
