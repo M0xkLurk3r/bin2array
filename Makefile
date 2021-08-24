@@ -6,10 +6,11 @@ else
 	EXE:=bin2array
 endif
 
+OBJCOPY ?= objcopy
 LD=ld.gold
 OBJFILE=bin2array.o
 
-all:
+$(EXE):
 	$(CC) main.c -o $(EXE)
 
 # FIX IN THE FUTURE
@@ -21,3 +22,14 @@ all:
 
 clean:
 	rm -f $(EXE) $(OBJFILE)
+
+test:	$(EXE)
+	set -e; \
+	for mode in uint8 uint16 uint32 uint64 int8 int16 int32 int64; do \
+		echo "Testing C $$mode mode" 1>&2; \
+		./$(EXE) --c-$$mode --file $(EXE) > test.$$mode.c; \
+		$(CC) --include stdint.h -c test.$$mode.c -o test.$$mode.o; \
+		$(OBJCOPY) --output-target binary test.$$mode.o; \
+		cmp $(EXE) test.$$mode.o; \
+		rm -f test.$$mode.c test.$$mode.o; \
+	done
