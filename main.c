@@ -82,6 +82,7 @@ void print_help(_In_ const char* argv0) {
 	fputs("Options:\n", stderr);
 	fputs("  -f\t\tInput file (default: stdin)\n", stderr);
 	fputs("  -h, --help\tShow this help\n", stderr);
+	fputs("  --dec\t\tUses decimal output instead of hexadecimal.\n", stderr);
 	fputs("  --c-uint8\tUses C style with unsigned 8-bit integer format.\n", stderr);
 	fputs("  --c-uint16\tUses C style with unsigned 16-bit integer format.\n", stderr);
 	fputs("  --c-uint32\tUses C style with unsigned 32-bit integer format.\n", stderr);
