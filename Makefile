@@ -10,8 +10,11 @@ OBJCOPY ?= objcopy
 LD=ld.gold
 OBJFILE=bin2array.o
 
-$(EXE):
-	$(CC) main.c -o $(EXE)
+$(EXE): $(OBJFILE)
+	$(CC) $(OBJFILE) -o $(EXE)
+
+$(OBJFILE):
+	$(CC) main.c -c -o $(OBJFILE)
 
 # FIX IN THE FUTURE
 # link object file with ld.bfd(1) -pie -o bin2arrray -lc
