@@ -55,12 +55,14 @@ struct argvconf {
 	int inttype;
 	int length_of_line;
 	int length_of_item;
+	int nolength;
 	char* filepath;
 };
 
-void do_array_printing(size_t current_size, size_t thissize, struct argvconf* conf, uint8_t* buffer, int last_buffer);
-void do_print_head(struct argvconf* conf);
-void do_print_tail(struct argvconf* conf);
+void do_array_printing(_In_ size_t current_size, _In_ size_t thissize, _In_ struct argvconf* conf, _In_ uint8_t* buffer, _In_ int last_buffer);
+void do_print_head(_In_ struct argvconf* conf);
+void do_print_tail(_In_ struct argvconf* conf);
+void do_print_length_vars(_In_ size_t size, _In_ struct argvconf* conf);
 
 
 void* request_shared_buffer(_In_ size_t size) {
@@ -82,6 +84,7 @@ void print_help(_In_ const char* argv0) {
 	fputs("Options:\n", stderr);
 	fputs("  -f\t\tInput file (default: stdin)\n", stderr);
 	fputs("  -h, --help\tShow this help\n", stderr);
+	fputs("  --no-lenvar\tDo not append length constant variable.\n", stderr);
 	fputs("  --dec\t\tUses decimal output instead of hexadecimal.\n", stderr);
 	fputs("  --c-uint8\tUses C style with unsigned 8-bit integer format.\n", stderr);
 	fputs("  --c-uint16\tUses C style with unsigned 16-bit integer format.\n", stderr);
@@ -113,6 +116,8 @@ void resolv_argv(_In_ int argc, _In_ char* argv[], _Out_ struct argvconf* conf) 
 			if (i + 1 < argc && argv[i + 1]) {
 				conf->length_of_line = atoi(argv[i + 1]);
 			}
+		} else if (!strcmp(argv[i], "--no-lenvar")) {
+			conf->nolength = 1;
 		} else if (!strcmp(argv[i], STYLE_C_UINT8_IDENT)) {
 			conf->style = STYLE_C_UINT8;
 		} else if (!strcmp(argv[i], STYLE_C_UINT16_IDENT)) {
@@ -165,6 +170,7 @@ void do_work(_In_ struct argvconf* conf) {
 		totalwrite_size += readsize;
 		if (last_buffer) {
 			do_print_tail(conf);
+			do_print_length_vars(totalwrite_size, conf);
 			break;
 		}
 	}
@@ -172,6 +178,31 @@ void do_work(_In_ struct argvconf* conf) {
 
 void do_print_tail(_In_ struct argvconf* conf) {
 	fputs("};\n", stdout);
+}
+
+void do_print_length_vars(_In_ size_t size, _In_ struct argvconf* conf) {
+	const char* writeformat = NULL;
+	if (! conf->nolength) {
+		switch (conf->style) {
+			case STYLE_C_UINT8:
+			case STYLE_C_UINT16:
+			case STYLE_C_UINT32:
+			case STYLE_C_UINT64:
+			case STYLE_C_INT8:
+			case STYLE_C_INT16:
+			case STYLE_C_INT32:
+			case STYLE_C_INT64:
+				writeformat = "const size_t ARRAY_LEN = %zu;\n";
+				break;
+			case STYLE_JAVA_BYTE:
+			case STYLE_JAVA_CHAR:
+				writeformat = "final long ARRAY_LEN = %zu;\n";
+				break;
+		}
+	}
+	if (writeformat) {
+		fprintf(stdout, writeformat, size);
+	}
 }
 
 void do_print_head(_In_ struct argvconf* conf) {
