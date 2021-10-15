@@ -17,6 +17,10 @@ clean:
 	rm -f $(EXE) $(OBJFILE)
 	rm -f $(C_TEST_SRC) 
 	rm -f $(C_TEST_OBJ) 
+	rm -f $(JAVA_TEST_CLASS).java
+	rm -f $(JAVA_TEST_CLASS).class
+	rm -f tmpfile
+	rm -f tmpfile1
 
 test:	$(EXE)
 	set -e; \
